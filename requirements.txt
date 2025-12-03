@@ -4,3 +4,9 @@ numpy
 seaborn
 matplotlib
 scikit-learn
+missingno
+shap
+protobuf
+pyyaml
+scipy
+statsmodels
