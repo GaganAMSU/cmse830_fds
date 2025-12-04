@@ -216,47 +216,161 @@ page = st.sidebar.radio(
 )
 
 # -----------------------------------
-# HOME PAGE
+# HOME PAGE (Markdown Only)
 # -----------------------------------
 if page == "Home":
-    st.header("💚 Welcome")
-    st.markdown(f"""
-### **Datasets Loaded:**  
-**{", ".join(sources)}**
 
-This app provides:
-- Missingness analysis  
-- Exploratory Data Analysis  
-- Visualizations  
-- Feature Engineering  
-- Machine Learning Modeling  
-""")
+    st.title("💚 Diabetes Analysis App")
+    st.write("Welcome to the Integrated Health Data Explorer!")
+
+    st.markdown("## 📦 Datasets Used")
+
+    st.markdown("""
+### 1️⃣ Scikit-Learn Diabetes Dataset  
+A well-known regression dataset included with the **scikit-learn** Python package.  
+It contains ten standardized clinical features such as BMI, blood pressure, age, and glucose  
+used to model diabetes disease progression.  
+**Source:** scikit-learn official datasets (built-in)
+
+---
+
+### 2️⃣ Pima Indians Diabetes Dataset  
+A widely used medical dataset describing diabetes test results among Pima Indian women.  
+Includes features like glucose, insulin, BMI, pregnancies, and age.  
+Commonly used for binary classification and health analytics.  
+**Source:** Public domain dataset compiled by **Jason Brownlee (GitHub)**, originally based on UCI Machine Learning Repository.
+
+---
+
+### 3️⃣ NHANES Health & Nutrition Dataset  
+A curated subset from the **National Health and Nutrition Examination Survey (NHANES)**.  
+Contains clinical variables such as cholesterol, BMI, blood pressure, glucose, and demographic attributes.  
+Used widely for health research and epidemiology.  
+**Source:** statOmics / PSLSData public GitHub repository.
+
+---
+
+### 4️⃣ User-Uploaded or External URL Data  
+You may upload your own CSV file or load a dataset from any valid public URL.  
+These datasets are dynamically merged with the selected built-in sources.  
+**Source:** User-provided input
+    """)
+
+    st.markdown("## 🚀 What You Can Do in This App")
+    st.markdown("""
+- Analyze missingness patterns and clean datasets  
+- Perform exploratory data analysis with multiple visualizations  
+- Apply feature engineering and transformations  
+- Train and compare multiple machine learning models  
+- Use diagnostics, cross-validation, and SHAP explanations  
+- Export cleaned data, data dictionaries, and trained models  
+    """)
+
+    if sources:
+        st.markdown("### 📁 Active Data Sources")
+        st.success(", ".join(sources))
+    else:
+        st.warning("No datasets loaded yet. Use the sidebar to select datasets.")
 
 # -----------------------------------
 # MISSINGNESS PAGE
 # -----------------------------------
 if page == "Missingness":
-    st.header("🔍 Missingness Analysis")
+    st.header("📉 Missingness Analysis & Cleanup")
 
     if combined.empty:
-        st.warning("No data")
+        st.warning("No data loaded.")
     else:
-        st.subheader("Dataset Preview")
-        st.dataframe(combined.head())
+        st.subheader("🔎 Missingness Summary")
 
-        st.subheader("Column Missingness")
-        miss = combined.isnull().sum().to_frame("missing_count")
-        miss["missing_percent"] = (combined.isnull().mean() * 100).round(2)
-        st.dataframe(miss)
+        miss_df = combined.isnull().mean().sort_values(ascending=False)
+        st.dataframe(miss_df.to_frame("missing_fraction"))
 
-        st.subheader("Missingness Visualization")
-        if HAS_MISSINGNO:
-            fig = msno.matrix(combined)
-            st.pyplot(fig.figure)
-        else:
-            fig, ax = plt.subplots(figsize=(12, 4))
-            sns.heatmap(combined.isnull(), cbar=False, cmap="Greens", yticklabels=False, ax=ax)
+        # Bar chart of missingness
+        fig, ax = plt.subplots(figsize=(8, 5))
+        sns.barplot(x=miss_df.values, y=miss_df.index, ax=ax, palette="Greens")
+        ax.set_xlabel("Fraction Missing")
+        ax.set_ylabel("Column")
+        ax.set_title("Missingness per Column")
+        st.pyplot(fig)
+
+        st.markdown("---")
+        st.subheader("🟢 Missingness Heatmap")
+
+        try:
+            fig, ax = plt.subplots(figsize=(8, 6))
+            sns.heatmap(combined.isnull(), cbar=False, cmap="Greens", ax=ax)
+            ax.set_title("Missingness Heatmap")
             st.pyplot(fig)
+        except:
+            st.info("Heatmap unsupported for very large datasets.")
+
+        st.markdown("---")
+        st.subheader("🧼 Missingness Cleanup Options")
+
+        clean_option = st.selectbox(
+            "Choose a missingness handling strategy:",
+            [
+                "⚠️ No cleaning",
+                "Drop columns with > 80% missing",
+                "Impute high-missing columns (>80%)",
+                "Hybrid: Drop columns >90% missing + impute rest",
+            ]
+        )
+
+        # Start with a fresh copy
+        df_clean = combined.copy()
+
+        if clean_option == "Drop columns with > 80% missing":
+            df_clean = df_clean.loc[:, df_clean.isnull().mean() < 0.80]
+            st.success("Dropped columns with >80% missing values.")
+
+        elif clean_option == "Impute high-missing columns (>80%)":
+            for col in df_clean.columns:
+                if df_clean[col].isnull().mean() > 0.80:
+                    if pd.api.types.is_numeric_dtype(df_clean[col]):
+                        df_clean[col] = df_clean[col].fillna(df_clean[col].median())
+                    else:
+                        df_clean[col] = df_clean[col].fillna(df_clean[col].mode()[0])
+            st.success("Imputed values for columns with >80% missing.")
+
+        elif clean_option == "Hybrid: Drop columns >90% missing + impute rest":
+            # Step 1: Drop extremely sparse columns
+            df_clean = df_clean.loc[:, df_clean.isnull().mean() < 0.90]
+
+            # Step 2: Impute remaining missing
+            for col in df_clean.columns:
+                if df_clean[col].isnull().sum() > 0:
+                    if pd.api.types.is_numeric_dtype(df_clean[col]):
+                        df_clean[col] = df_clean[col].fillna(df_clean[col].median())
+                    else:
+                        df_clean[col] = df_clean[col].fillna(df_clean[col].mode()[0])
+
+            st.success("Dropped >90% missing cols and imputed remaining values.")
+
+        else:
+            st.warning("No missingness cleanup applied.")
+
+        # Save cleaned dataset for other pages
+        st.session_state["cleaned_dataset"] = df_clean
+
+        st.markdown("---")
+        st.subheader("📁 Cleaned Dataset Preview")
+        st.write("Shape:", df_clean.shape)
+        st.dataframe(df_clean.head())
+
+        st.subheader("⬇️ Download Cleaned Dataset")
+
+        csv_clean = df_clean.to_csv(index=False)
+        b64_clean = base64.b64encode(csv_clean.encode()).decode()
+
+        st.markdown(
+            f'<a href="data:file/csv;base64,{b64_clean}" '
+            f'download="cleaned_dataset.csv" style="font-size:18px;color:#0b6e0b;">'
+            f'Download Cleaned Dataset</a>',
+            unsafe_allow_html=True
+        )
+
 
 # -----------------------------------
 # EDA PAGE
