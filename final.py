@@ -1,14 +1,3 @@
-# final_app_green.py
-"""
-Final Streamlit App (Green + White Theme)
-✓ sklearn diabetes
-✓ Pima Indians Diabetes dataset
-✓ NHANES curated sample
-✓ Upload/URL datasets
-✓ Missingness, EDA, Feature Engineering, Modeling
-✓ Themed UI with green + white styling
-"""
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -663,5 +652,6 @@ if page == "Documentation":
             f'⬇️ Download CSV</a>',
             unsafe_allow_html=True
         )
+
 
 
