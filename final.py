@@ -32,7 +32,7 @@ except:
 # STREAMLIT CONFIG
 # -----------------------------------
 st.set_page_config(
-    page_title="Diabetes Analysis App",
+    page_title="CMSE 830- Final Project 'Diabetes Analysis App'",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -652,6 +652,7 @@ if page == "Documentation":
             f'⬇️ Download CSV</a>',
             unsafe_allow_html=True
         )
+
 
 
 
