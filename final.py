@@ -209,13 +209,13 @@ page = st.sidebar.radio(
 # -----------------------------------
 if page == "Home":
 
-    st.title("💚 Diabetes Analysis App")
+    st.title(" Diabetes Analysis App")
     st.write("Welcome to the Integrated Health Data Explorer!")
 
-    st.markdown("## 📦 Datasets Used")
+    st.markdown("##  Datasets Used")
 
     st.markdown("""
-### 1️⃣ Scikit-Learn Diabetes Dataset  
+###  Scikit-Learn Diabetes Dataset  
 A well-known regression dataset included with the **scikit-learn** Python package.  
 It contains ten standardized clinical features such as BMI, blood pressure, age, and glucose  
 used to model diabetes disease progression.  
@@ -223,7 +223,7 @@ used to model diabetes disease progression.
 
 ---
 
-### 2️⃣ Pima Indians Diabetes Dataset  
+###  Pima Indians Diabetes Dataset  
 A widely used medical dataset describing diabetes test results among Pima Indian women.  
 Includes features like glucose, insulin, BMI, pregnancies, and age.  
 Commonly used for binary classification and health analytics.  
@@ -231,7 +231,7 @@ Commonly used for binary classification and health analytics.
 
 ---
 
-### 3️⃣ NHANES Health & Nutrition Dataset  
+###  NHANES Health & Nutrition Dataset  
 A curated subset from the **National Health and Nutrition Examination Survey (NHANES)**.  
 Contains clinical variables such as cholesterol, BMI, blood pressure, glucose, and demographic attributes.  
 Used widely for health research and epidemiology.  
@@ -239,13 +239,13 @@ Used widely for health research and epidemiology.
 
 ---
 
-### 4️⃣ User-Uploaded or External URL Data  
+###  User-Uploaded or External URL Data  
 You may upload your own CSV file or load a dataset from any valid public URL.  
 These datasets are dynamically merged with the selected built-in sources.  
 **Source:** User-provided input
     """)
 
-    st.markdown("## 🚀 What You Can Do in This App")
+    st.markdown("##  What You Can Do in This App")
     st.markdown("""
 - Analyze missingness patterns and clean datasets  
 - Perform exploratory data analysis with multiple visualizations  
@@ -256,7 +256,7 @@ These datasets are dynamically merged with the selected built-in sources.
     """)
 
     if sources:
-        st.markdown("### 📁 Active Data Sources")
+        st.markdown("###  Active Data Sources")
         st.success(", ".join(sources))
     else:
         st.warning("No datasets loaded yet. Use the sidebar to select datasets.")
@@ -265,12 +265,12 @@ These datasets are dynamically merged with the selected built-in sources.
 # MISSINGNESS PAGE
 # -----------------------------------
 if page == "Missingness":
-    st.header("📉 Missingness Analysis & Cleanup")
+    st.header(" Missingness Analysis & Cleanup")
 
     if combined.empty:
         st.warning("No data loaded.")
     else:
-        st.subheader("🔎 Missingness Summary")
+        st.subheader(" Missingness Summary")
 
         miss_df = combined.isnull().mean().sort_values(ascending=False)
         st.dataframe(miss_df.to_frame("missing_fraction"))
@@ -284,7 +284,7 @@ if page == "Missingness":
         st.pyplot(fig)
 
         st.markdown("---")
-        st.subheader("🟢 Missingness Heatmap")
+        st.subheader(" Missingness Heatmap")
 
         try:
             fig, ax = plt.subplots(figsize=(8, 6))
@@ -295,12 +295,12 @@ if page == "Missingness":
             st.info("Heatmap unsupported for very large datasets.")
 
         st.markdown("---")
-        st.subheader("🧼 Missingness Cleanup Options")
+        st.subheader(" Missingness Cleanup Options")
 
         clean_option = st.selectbox(
             "Choose a missingness handling strategy:",
             [
-                "⚠️ No cleaning",
+                " No cleaning",
                 "Drop columns with > 80% missing",
                 "Impute high-missing columns (>80%)",
                 "Hybrid: Drop columns >90% missing + impute rest",
@@ -344,11 +344,11 @@ if page == "Missingness":
         st.session_state["cleaned_dataset"] = df_clean
 
         st.markdown("---")
-        st.subheader("📁 Cleaned Dataset Preview")
+        st.subheader(" Cleaned Dataset Preview")
         st.write("Shape:", df_clean.shape)
         st.dataframe(df_clean.head())
 
-        st.subheader("⬇️ Download Cleaned Dataset")
+        st.subheader(" Download Cleaned Dataset")
 
         csv_clean = df_clean.to_csv(index=False)
         b64_clean = base64.b64encode(csv_clean.encode()).decode()
@@ -365,7 +365,7 @@ if page == "Missingness":
 # EDA PAGE
 # -----------------------------------
 if page == "EDA":
-    st.header("📊 Exploratory Data Analysis")
+    st.header(" Exploratory Data Analysis")
 
     if combined.empty:
         st.warning("No data")
@@ -403,7 +403,7 @@ if page == "EDA":
 # FEATURE ENGINEERING PAGE
 # -----------------------------------
 if page == "Feature Engineering":
-    st.header("🧰 Feature Engineering")
+    st.header(" Feature Engineering")
 
     if combined.empty:
         st.warning("No data")
@@ -430,7 +430,7 @@ if page == "Feature Engineering":
 # MODELING PAGE
 # -----------------------------------
 if page == "Modeling":
-    st.header("🤖 Advanced Modeling & Model Explainability")
+    st.header(" Advanced Modeling & Model Explainability")
 
     if combined.empty:
         st.warning("No data loaded.")
@@ -496,7 +496,7 @@ if page == "Modeling":
             }
 
             if tune:
-                st.write("🔍 Performing hyperparameter tuning…")
+                st.write(" Performing hyperparameter tuning…")
                 search = RandomizedSearchCV(
                     model,
                     param_distributions=param_grids[model_type],
@@ -508,7 +508,7 @@ if page == "Modeling":
                 )
                 search.fit(X_train, y_train)
                 model = search.best_estimator_
-                st.success("🎯 Best Params Found:")
+                st.success(" Best Params Found:")
                 st.write(search.best_params_)
             else:
                 model.fit(X_train, y_train)
@@ -517,7 +517,7 @@ if page == "Modeling":
             preds = model.predict(X_test)
 
             # Metrics
-            st.subheader("📊 Performance Metrics")
+            st.subheader(" Performance Metrics")
             r2 = r2_score(y_test, preds)
             rmse = np.sqrt(mean_squared_error(y_test, preds))
             mae = mean_absolute_error(y_test, preds)
@@ -528,7 +528,7 @@ if page == "Modeling":
             col3.metric("MAE", f"{mae:.4f}")
 
             # ------------- Residual Diagnostics --------------
-            st.subheader("📉 Residual Diagnostics")
+            st.subheader(" Residual Diagnostics")
 
             residuals = y_test - preds
 
@@ -552,7 +552,7 @@ if page == "Modeling":
             st.pyplot(fig)
 
             # ------------- Prediction Error Plot --------------
-            st.subheader("📈 Prediction Error Plot")
+            st.subheader(" Prediction Error Plot")
             fig, ax = plt.subplots()
             sns.scatterplot(x=y_test, y=preds, ax=ax)
             ax.set_xlabel("True Values")
@@ -561,7 +561,7 @@ if page == "Modeling":
             st.pyplot(fig)
 
             # ------------- Cross-Validation -------------------
-            st.subheader("📚 Cross-Validation (5-fold)")
+            st.subheader(" Cross-Validation (5-fold)")
 
             cv_scores = cross_validate(
                 model, X, y, cv=5,
@@ -577,7 +577,7 @@ if page == "Modeling":
             st.dataframe(cv_df)
 
             # ------------- Learning Curve ---------------------
-            st.subheader("📉 Learning Curve")
+            st.subheader(" Learning Curve")
 
             train_sizes, train_scores, test_scores = learning_curve(
                 model, X, y, cv=5,
@@ -594,7 +594,7 @@ if page == "Modeling":
             st.pyplot(fig)
 
             # ------------- SHAP EXPLAINABILITY ----------------
-            st.subheader("🧠 SHAP Explainability")
+            st.subheader(" SHAP Explainability")
 
             try:
                 explainer = shap.Explainer(model, X_train)
@@ -612,7 +612,7 @@ if page == "Modeling":
                 st.info("SHAP not supported for this model type.")
 
             # ------------- Model Download ---------------------
-            st.subheader("⬇️ Download Model")
+            st.subheader(" Download Model")
             b = pickle.dumps(model)
             b64 = base64.b64encode(b).decode()
 
@@ -636,22 +636,23 @@ if page == "Documentation":
         # -----------------------------------
         # PREVIEW SECTION
         # -----------------------------------
-        st.subheader("🔍 Dataset Preview")
+        st.subheader(" Dataset Preview")
         st.dataframe(combined.head())
 
         # -----------------------------------
         # DOWNLOAD COMBINED DATASET
         # -----------------------------------
-        st.subheader("📥 Download Combined Dataset")
+        st.subheader(" Download Combined Dataset")
         csv = combined.to_csv(index=False)
         b64 = base64.b64encode(csv.encode()).decode()
 
         st.markdown(
             f'<a href="data:file/csv;base64,{b64}" download="combined_dataset.csv" '
             f'style="font-size:18px;color:#0b6e0b;font-weight:bold;">'
-            f'⬇️ Download CSV</a>',
+            f' Download CSV</a>',
             unsafe_allow_html=True
         )
+
 
 
 
