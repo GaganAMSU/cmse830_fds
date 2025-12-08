@@ -84,7 +84,7 @@ h1, h2, h3, h4 {
 # -----------------------------------
 # TITLE
 # -----------------------------------
-st.title("Diabetes Analysis App")
+# st.title("Diabetes Analysis App")
 
 # -----------------------------------
 # SIDEBAR CONTROLS
@@ -652,6 +652,7 @@ if page == "Documentation":
             f'⬇️ Download CSV</a>',
             unsafe_allow_html=True
         )
+
 
 
 
